@@ -12,6 +12,10 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
+        <maven-jar-plugin.version>3.0.0</maven-jar-plugin.version>
+        <spotless.plugin.version>2.44.2</spotless.plugin.version>
+        <main.class>kz.kcsd.demo.Main</main.class>
     </properties>
 
     <dependencies>
@@ -60,5 +64,87 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>iso20022demo</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>./</Class-Path>
+                            <Rsrc-Main-Class>${main.class}</Rsrc-Main-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.plugin.version}</version>
+                <configuration>
+                    <java>
+                        <includes>
+                            <!-- specify all java directories in all modules of your project -->
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+
+                        <!-- Refactoring of your code with complex best-practices -->
+                        <cleanthat/>
+
+                        <!-- <palantirJavaFormat/> applying palantir style -->
+                        <!-- <palantirJavaFormat>
+                                <style>GOOGLE</style>
+                            </palantirJavaFormat> applying palantir with google style -->
+                        <!-- Applying classic google style of Java -->
+                        <googleJavaFormat/>
+
+                        <!-- sorting imports -->
+                        <importOrder/>
+                        <!-- Cleaning unused imports -->
+                        <removeUnusedImports/>
+                        <!-- Remove double and extra whitespaces -->
+                        <trimTrailingWhitespace/>
+                        <!-- Formatting annotation to follow side by side on separate lines -->
+                        <formatAnnotations/>
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
